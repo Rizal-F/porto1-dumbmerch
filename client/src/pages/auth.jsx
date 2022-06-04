@@ -1,10 +1,23 @@
+import { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { UserContext } from "../context/userContext";
+
 import imgDw from "../assets/DumbMerch.png";
 import Register from "../component/auth/register";
 import Login from "../component/auth/login";
 
-import { useState } from "react";
-
 function Auth() {
+  let navigate = useNavigate();
+
+  const [state] = useContext(UserContext);
+
+  const checkAuth = () => {
+    if (state.isLogin === true) {
+      navigate("/");
+    }
+  };
+  checkAuth();
+
   const [isRegister, setIsRegister] = useState(false);
 
   const switchLogin = () => {

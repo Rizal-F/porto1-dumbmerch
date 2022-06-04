@@ -53,7 +53,7 @@ exports.getUser = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const data = await user.findOne({
+    let data = await user.findOne({
       where: {
         id,
       },
@@ -69,6 +69,15 @@ exports.getUser = async (req, res) => {
         exclude: ["password", "createdAt", "updatedAt"],
       },
     });
+    data = JSON.parse(JSON.stringify(data));
+
+    data = {
+      ...data,
+      image: process.env.PATH_FILE + data.profile.image,
+      phone: data.profile.phone,
+      gender: data.profile.gender,
+      address: data.profile.address,
+    };
 
     res.send({
       status: "success",

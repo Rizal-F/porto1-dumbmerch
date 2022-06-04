@@ -1,113 +1,211 @@
-import NavbarAdmin from "../component/navbar/navbarAdmin";
-import dataProduct from "../dummyData/product";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router";
 
-import { Fragment, useRef, useState } from "react";
+// import NavbarAdmin from "../component/navbar/navbarAdmin";
+import { Link } from "react-router-dom";
+// import dataProduct from "../dummyData/product";
+
+import { Fragment, useRef, useState, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { ExclamationIcon } from "@heroicons/react/outline";
 
-import React from "react";
+import rupiahFormat from "rupiah-format";
+
+import imgEmpty from "../assets/empty.svg";
+
+import { API } from "../config/api";
+import NavbarAll from "../component/auth/navbar";
+// import { NavbarAll } from "../component/navbar/NavbarAll";
+// import { Navbar } from "../component/Navbar";
 
 const ProductAdmin = () => {
+  let navigate = useNavigate();
+
   const title = "Product Admin";
+  document.title = "DumbMerch | " + title;
 
+  // Variabel for store product data
+  const [products, setProducts] = useState([]);
+
+  // Get product data from database
+  const getProducts = async () => {
+    try {
+      const response = await API.get("/products");
+      // Store product data to useState variabel
+      setProducts(response.data.data.listProduct);
+      console.log(response.data.data.listProduct);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getProducts();
+  }, []);
+
+  const handleUpdate = (id) => {
+    navigate("/edit-product/" + id);
+  };
+
+  // // Create variabel for id product and confirm delete data with useState here ...
+  const [idDelete, setIdDelete] = useState(null);
+  //modal state delete
   const [open, setOpen] = useState(false);
-
   const cancelButtonRef = useRef(null);
+  const [confirmDelete, setConfirmDelete] = useState(null);
+
+  // Create function handle get id product & show modal confirm delete data here ...
+  const handleDelete = (id) => {
+    setIdDelete(id);
+    setOpen(!open);
+  };
+  // console.log(idDelete);
+
+  // Create function for handle delete product here ...
+  // If confirm is true, execute delete data
+  const deleteById = async (id) => {
+    try {
+      await API.delete(`/product/${id}`);
+      getProducts();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const deleteData = () => {
+    setOpen(!open);
+    setConfirmDelete(true);
+  };
+
+  // Call function for handle close modal and execute delete data with useEffect here ...
+  useEffect(() => {
+    if (confirmDelete) {
+      // Close modal confirm delete data
+      // execute delete data by id function
+      deleteById(idDelete);
+      setConfirmDelete(null);
+    }
+  }, [confirmDelete]);
+
   return (
-    <div>
-      <div className="bg-black h-screen">
-        <NavbarAdmin title={title} />
+    <div className="bg-black">
+      <div>
+        {/* <NavbarAdmin title={title} /> */}
+        <NavbarAll title={title} />
         <h1 className="text-brand-white font-bold text-2xl mx-32 my-2">
           List Product
         </h1>
+        <Link to="/add-product">
+          <button className="bg-green-700 mx-40 mt-12 py-2 px-3 rounded-md mr-2 text-white font-semibold">
+            Add Product
+          </button>
+        </Link>
 
-        <table class="border-collapse md:w-9/12 md:m-auto md:mt-12 ">
-          <thead>
-            <tr>
-              <th class="p-3 font-bold uppercase bg-gray-200 text-gray-600 border border-gray-300 hidden lg:table-cell">
-                No
-              </th>
-              <th class="p-3 font-bold uppercase bg-gray-200 text-gray-600 border border-gray-300 hidden lg:table-cell">
-                Photo
-              </th>
-              <th class="p-3 font-bold uppercase bg-gray-200 text-gray-600 border border-gray-300 hidden lg:table-cell">
-                Product Name
-              </th>
-              <th class="p-3 font-bold uppercase bg-gray-200 text-gray-600 border border-gray-300 hidden lg:table-cell">
-                Product Desc
-              </th>
-              <th class="p-3 font-bold uppercase bg-gray-200 text-gray-600 border border-gray-300 hidden lg:table-cell">
-                Price
-              </th>
-              <th class="p-3 font-bold uppercase bg-gray-200 text-gray-600 border border-gray-300 hidden lg:table-cell">
-                Qty
-              </th>
-              <th class="p-3 font-bold uppercase bg-gray-200 text-gray-600 border border-gray-300 hidden lg:table-cell">
-                Action
-              </th>
-            </tr>
-          </thead>
-          {dataProduct.map((items) => (
-            <tbody>
-              <tr class="bg-white lg:hover:bg-gray-100 flex lg:table-row flex-row lg:flex-row flex-wrap lg:flex-no-wrap mb-10 lg:mb-0">
-                <td class="w-full lg:w-auto p-3 text-gray-800 text-center border border-b block lg:table-cell relative lg:static">
-                  <span class="lg:hidden absolute top-0 left-0 bg-blue-200 px-2 py-1 text-xs font-bold uppercase">
+        {products.length !== 0 ? (
+          <div className="mb-20">
+            <table class="border-collapse md:w-9/12 md:m-auto md:mt-12">
+              <thead>
+                <tr>
+                  <th class="p-3 font-bold uppercase bg-gray-200 text-gray-600 border border-gray-300 hidden lg:table-cell">
                     No
-                  </span>
-                  {items.id}
-                </td>
-                <td class="w-full lg:w-auto p-3 text-gray-800 text-center border border-b block lg:table-cell relative lg:static">
-                  <span class="lg:hidden absolute top-0 left-0 bg-blue-200 px-2 py-1 text-xs font-bold uppercase">
+                  </th>
+                  <th class="p-3 font-bold uppercase bg-gray-200 text-gray-600 border border-gray-300 hidden lg:table-cell">
                     Photo
-                  </span>
-                  {items.url}
-                </td>
-                <td class="w-full lg:w-auto p-3 text-gray-800 text-center border border-b block lg:table-cell relative lg:static">
-                  <span class="lg:hidden absolute top-0 left-0 bg-blue-200 px-2 py-1 text-xs font-bold uppercase">
+                  </th>
+                  <th class="p-3 font-bold uppercase bg-gray-200 text-gray-600 border border-gray-300 hidden lg:table-cell">
                     Product Name
-                  </span>
-                  {items.name}
-                </td>
-                <td class="w-full lg:w-auto p-3 text-gray-800 text-center border border-b block lg:table-cell relative lg:static">
-                  <span class="lg:hidden absolute top-0 left-0 bg-blue-200 px-2 py-1 text-xs font-bold uppercase">
+                  </th>
+                  <th class="p-3 font-bold uppercase bg-gray-200 text-gray-600 border border-gray-300 hidden lg:table-cell">
                     Product Desc
-                  </span>
-                  {items.desc.slice(0, 10) + "..."}
-                </td>
-                <td class="w-full lg:w-auto p-3 text-gray-800 border border-b text-center block lg:table-cell relative lg:static">
-                  <span class="lg:hidden absolute top-0 left-0 bg-blue-200 px-2 py-1 text-xs font-bold uppercase">
+                  </th>
+                  <th class="p-3 font-bold uppercase bg-gray-200 text-gray-600 border border-gray-300 hidden lg:table-cell">
                     Price
-                  </span>
-                  {items.price}
-                </td>
-                <td class="w-full lg:w-auto p-3 text-gray-800 border border-b text-center block lg:table-cell relative lg:static">
-                  <span class="lg:hidden absolute top-0 left-0 bg-blue-200 px-2 py-1 text-xs font-bold uppercase">
+                  </th>
+                  <th class="p-3 font-bold uppercase bg-gray-200 text-gray-600 border border-gray-300 hidden lg:table-cell">
                     Qty
-                  </span>
-                  <span class="">{items.stock}</span>
-                </td>
-                <td class="w-full lg:w-auto p-3 text-gray-800  border border-b text-center block lg:table-cell relative lg:static">
-                  <span class="lg:hidden absolute top-0 left-0 bg-blue-200 px-2 py-1 text-xs font-bold uppercase">
+                  </th>
+                  <th class="p-3 font-bold uppercase bg-gray-200 text-gray-600 border border-gray-300 hidden lg:table-cell">
                     Action
-                  </span>
-                  <Link to="/edit-product">
-                    <button className="bg-green-600 hover:bg-green-800 px-8 py-1 rounded-md mr-2 text-white font-semibold">
-                      Edit
-                    </button>
-                  </Link>
-                  <button
-                    onClick={() => setOpen(!open)}
-                    className="bg-brand-red-hover hover:bg-red-800 px-7 py-1 rounded-md text-white font-semibold"
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {products.map((item, index) => (
+                  <tr
+                    key={index}
+                    class="bg-white lg:hover:bg-gray-100 flex lg:table-row flex-row lg:flex-row flex-wrap lg:flex-no-wrap mb-10 lg:mb-0"
                   >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          ))}
-        </table>
+                    <td class="w-full lg:w-auto p-3 text-gray-800 text-center border border-b block lg:table-cell relative lg:static">
+                      <span class="lg:hidden absolute top-0 left-0 bg-blue-200 px-2 py-1 text-xs font-bold uppercase">
+                        No
+                      </span>
+                      {index + 1}
+                    </td>
+                    <td class="w-full lg:w-auto p-3 text-gray-800 text-center border border-b block lg:table-cell relative lg:static">
+                      <span class="lg:hidden absolute top-0 left-0 bg-blue-200 px-2 py-1 text-xs font-bold uppercase">
+                        Image
+                      </span>
+                      <img src={item.image} className="w-20" alt="img" />
+                    </td>
+                    <td class="w-full lg:w-auto p-3 text-gray-800 text-center border border-b block lg:table-cell relative lg:static">
+                      <span class="lg:hidden absolute top-0 left-0 bg-blue-200 px-2 py-1 text-xs font-bold uppercase">
+                        Product Name
+                      </span>
+                      {item.name}
+                    </td>
+                    <td class="w-full lg:w-auto p-3 text-gray-800 text-center border border-b block lg:table-cell relative lg:static">
+                      <span class="lg:hidden absolute top-0 left-0 bg-blue-200 px-2 py-1 text-xs font-bold uppercase">
+                        Product Desc
+                      </span>
+                      {item.desc.slice(0, 10) + "..."}
+                    </td>
+                    <td class="w-full lg:w-auto p-3 text-gray-800 border border-b text-center block lg:table-cell relative lg:static">
+                      <span class="lg:hidden absolute top-0 left-0 bg-blue-200 px-2 py-1 text-xs font-bold uppercase">
+                        Price
+                      </span>
+                      {rupiahFormat.convert(item.price)}
+                    </td>
+                    <td class="w-full lg:w-auto p-3 text-gray-800 border border-b text-center block lg:table-cell relative lg:static">
+                      <span class="lg:hidden absolute top-0 left-0 bg-blue-200 px-2 py-1 text-xs font-bold uppercase">
+                        Qty
+                      </span>
+                      <span class="">{item.qty}</span>
+                    </td>
+                    <td class="w-full lg:w-auto p-3 text-gray-800  border border-b text-center block lg:table-cell relative lg:static">
+                      <span class="lg:hidden absolute top-0 left-0 bg-blue-200 px-2 py-1 text-xs font-bold uppercase">
+                        Action
+                      </span>
+
+                      <button
+                        onClick={() => {
+                          handleUpdate(item.id);
+                        }}
+                        className="bg-green-600 hover:bg-green-800 px-8 py-1 rounded-md mr-2 text-white font-semibold"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        // onClick={() => setOpen(!open)}
+                        onClick={() => {
+                          handleDelete(item.id);
+                        }}
+                        className="bg-brand-red-hover hover:bg-red-800 px-7 py-1 rounded-md text-white font-semibold"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="pt-5 flex flex-col items-center pb-20">
+            <img className="w-2/5" src={imgEmpty} alt="empty" />
+            <div className="mt-3 text-white">No data product</div>
+          </div>
+        )}
       </div>
+
       <Transition.Root show={open} as={Fragment}>
         <Dialog
           as="div"
@@ -173,7 +271,7 @@ const ProductAdmin = () => {
                     <button
                       type="button"
                       className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-8 py-2 bg-green-600 hover:bg-green-800 text-base font-medium text-white  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                      onClick={() => setOpen(false)}
+                      onClick={deleteData}
                       ref={cancelButtonRef}
                     >
                       Yes

@@ -1,39 +1,26 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import React, { useState } from "react";
 // import NavbarAdmin from "../component/navbar/navbarAdmin";
 import NavbarAll from "../component/auth/navbar";
+import { useNavigate } from "react-router";
+
 import { API } from "../config/api";
 
-const EditCategory = () => {
+const AddCategory = () => {
   const title = "Category Admin";
   document.title = "DumbMerch | " + title;
 
   let navigate = useNavigate();
-  const { id } = useParams();
-
-  const [category, setCategory] = useState([]);
-
-  const getCategory = async () => {
-    try {
-      const response = await API.get("/category/" + id);
-      setCategory(response.data.data.detailCategory);
-      console.log(response.data.data.detailCategory);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  const [category, setCategory] = useState("");
 
   const handleChange = (e) => {
-    setCategory({
-      ...category,
-      name: e.target.value,
-    });
+    setCategory(e.target.value);
   };
 
   const handleSubmit = async (e) => {
     try {
       e.preventDefault();
 
+      // Configuration
       const config = {
         headers: {
           "Content-type": "application/json",
@@ -41,10 +28,11 @@ const EditCategory = () => {
       };
 
       // Data body
-      const body = JSON.stringify(category);
+      const body = JSON.stringify({ name: category });
 
       // Insert category data
-      const response = await API.patch("/category/" + id, body, config);
+      const response = await API.post("/category", body, config);
+      console.log(body);
 
       navigate("/category-admin");
     } catch (error) {
@@ -52,28 +40,25 @@ const EditCategory = () => {
     }
   };
 
-  useEffect(() => {
-    getCategory(id);
-  }, []);
-
   return (
     <div className="bg-black">
       <NavbarAll title={title} />
       <div>
-        <h1 className="text-white text-2xl font-bold ml-32 ">Edit Category</h1>
+        <h1 className="text-white text-2xl font-bold ml-32 ">Add Category</h1>
         <div className="flex justify-center">
           <div className=" flex-col w-4/5">
-            <form onSubmit={handleSubmit}>
+            <form>
               <input
-                type="category"
-                id="category"
-                name="category"
                 onChange={handleChange}
-                value={category.name}
-                placeholder="Category"
+                placeholder="category"
+                // value={category}
+                name="category"
                 class="text-white bg-brand-grey-light w-full my-10 px-3 py-2 border-2 rounded-md focus:outline-none placeholder-gray-500 focus:border-zinc-400 focus:z-10"
               />
-              <button className="bg-green-600 hover:bg-green-800 w-full px-3 py-2 rounded-md text-white font-semibold">
+              <button
+                onClick={handleSubmit}
+                className="bg-green-600 hover:bg-green-800 w-full px-3 py-2 rounded-md text-white font-semibold"
+              >
                 Save
               </button>
             </form>
@@ -84,4 +69,4 @@ const EditCategory = () => {
   );
 };
 
-export default EditCategory;
+export default AddCategory;

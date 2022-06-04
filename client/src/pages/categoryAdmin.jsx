@@ -1,77 +1,153 @@
-import NavbarAdmin from "../component/navbar/navbarAdmin";
-import dataProduct from "../dummyData/category";
-import { Link } from "react-router-dom";
+import React, { Fragment, useRef, useState, useEffect } from "react";
+import imgEmpty from "../assets/empty.svg";
 
-import { Fragment, useRef, useState } from "react";
+// import NavbarAdmin from "../component/navbar/navbarAdmin";
+import NavbarAll from "../component/auth/navbar";
+import dataProduct from "../dummyData/category";
+import { Link, useNavigate } from "react-router-dom";
+
 import { Dialog, Transition } from "@headlessui/react";
 import { ExclamationIcon } from "@heroicons/react/outline";
 
-import React from "react";
+import { API } from "../config/api";
 
 const CategoryAdmin = () => {
+  let navigate = useNavigate();
+
   const title = "Category Admin";
+  document.title = "DumbMerch | " + title;
 
+  // Variabel for store category data
+  const [categories, setCategories] = useState([]);
+
+  const getCategories = async () => {
+    try {
+      const response = await API.get("/categories");
+      // Store categories data to useState variabel
+      setCategories(response.data.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getCategories();
+  }, []);
+
+  const handleUpdate = (id) => {
+    navigate("/edit-category/" + id);
+  };
+
+  const [idDelete, setIdDelete] = useState(null);
   const [open, setOpen] = useState(false);
-
   const cancelButtonRef = useRef(null);
 
+  const [confirmDelete, setConfirmDelete] = useState(null);
+
+  const handleDelete = (id) => {
+    setIdDelete(id);
+    setOpen(!open);
+  };
+
+  const deleteById = async (id) => {
+    try {
+      await API.delete(`/category/${id}`);
+      getCategories();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // Call function for handle close modal and execute delete data with useEffect here ...
+  useEffect(() => {
+    if (confirmDelete) {
+      // Close modal confirm delete data
+      // execute delete data by id function
+      deleteById(idDelete);
+      setConfirmDelete(null);
+    }
+  }, [confirmDelete]);
+
+  const deleteData = () => {
+    setOpen(!open);
+    setConfirmDelete(true);
+  };
   return (
     <div>
-      <div className="bg-black h-screen">
-        <NavbarAdmin title={title} />
+      <div className="bg-black">
+        <NavbarAll title={title} />
         <h1 className="text-brand-white font-bold text-2xl mx-32 my-2">
           List Category
         </h1>
-
-        <table class="border-collapse md:w-9/12 md:m-auto md:mt-12 ">
-          <thead>
-            <tr>
-              <th class="p-3 font-bold uppercase bg-gray-200 text-gray-600 border border-gray-300 hidden lg:table-cell">
-                No
-              </th>
-              <th class="p-3 font-bold uppercase bg-gray-200 text-gray-600 border border-gray-300 hidden lg:table-cell">
-                Category Product
-              </th>
-              <th class="p-3 font-bold uppercase bg-gray-200 text-gray-600 border border-gray-300 hidden lg:table-cell">
-                Action
-              </th>
-            </tr>
-          </thead>
-          {dataProduct.map((items) => (
-            <tbody>
-              <tr class="bg-white lg:hover:bg-gray-100 flex lg:table-row flex-row lg:flex-row flex-wrap lg:flex-no-wrap mb-10 lg:mb-0">
-                <td class="w-full lg:w-auto p-3 text-gray-800 text-center border border-b block lg:table-cell relative lg:static">
-                  <span class="lg:hidden absolute top-0 left-0 bg-blue-200 px-2 py-1 text-xs font-bold uppercase">
+        <Link to="/add-category">
+          <button className="bg-green-700 mx-40 mt-12 py-2 px-3 rounded-md mr-2 text-white font-semibold">
+            Add Category
+          </button>
+        </Link>
+        {categories.length !== 0 ? (
+          <div className="mb-20">
+            <table class="border-collapse md:w-9/12 md:m-auto md:mt-12 ">
+              <thead>
+                <tr>
+                  <th class="p-3 font-bold uppercase bg-gray-200 text-gray-600 border border-gray-300 hidden lg:table-cell">
                     No
-                  </span>
-                  {items.id}
-                </td>
-                <td class="w-full lg:w-auto p-3 text-gray-800 border border-b text-center block lg:table-cell relative lg:static">
-                  <span class="lg:hidden absolute top-0 left-0 bg-blue-200 px-2 py-1 text-xs font-bold uppercase">
+                  </th>
+                  <th class="p-3 font-bold uppercase bg-gray-200 text-gray-600 border border-gray-300 hidden lg:table-cell">
                     Category Product
-                  </span>
-                  {items.name}
-                </td>
-                <td class="w-full lg:w-auto p-3 text-gray-800  border border-b text-center block lg:table-cell relative lg:static">
-                  <span class="lg:hidden absolute top-0 left-0 bg-blue-200 px-2 py-1 text-xs font-bold uppercase">
+                  </th>
+                  <th class="p-3 font-bold uppercase bg-gray-200 text-gray-600 border border-gray-300 hidden lg:table-cell">
                     Action
-                  </span>
-                  <Link to="/edit-category">
-                    <button className="bg-green-600 hover:bg-green-800 px-8 py-1 rounded-md mr-2 text-white font-semibold">
-                      Edit
-                    </button>
-                  </Link>
-                  <button
-                    onClick={() => setOpen(!open)}
-                    className="bg-brand-red-hover hover:bg-red-800 px-7 py-1 rounded-md text-white font-semibold"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          ))}
-        </table>
+                  </th>
+                </tr>
+              </thead>
+              {categories.map((items, index) => (
+                <tbody key={index}>
+                  <tr class="bg-white lg:hover:bg-gray-100 flex lg:table-row flex-row lg:flex-row flex-wrap lg:flex-no-wrap mb-10 lg:mb-0">
+                    <td class="w-full lg:w-auto p-3 text-gray-800 text-center border border-b block lg:table-cell relative lg:static">
+                      <span class="lg:hidden absolute top-0 left-0 bg-blue-200 px-2 py-1 text-xs font-bold uppercase">
+                        No
+                      </span>
+                      {items.id}
+                    </td>
+                    <td class="w-full lg:w-auto p-3 text-gray-800 border border-b text-center block lg:table-cell relative lg:static">
+                      <span class="lg:hidden absolute top-0 left-0 bg-blue-200 px-2 py-1 text-xs font-bold uppercase">
+                        Category Product
+                      </span>
+                      {items.name}
+                    </td>
+                    <td class="w-full lg:w-auto p-3 text-gray-800  border border-b text-center block lg:table-cell relative lg:static">
+                      <span class="lg:hidden absolute top-0 left-0 bg-blue-200 px-2 py-1 text-xs font-bold uppercase">
+                        Action
+                      </span>
+
+                      <button
+                        onClick={() => {
+                          handleUpdate(items.id);
+                        }}
+                        className="bg-green-600 hover:bg-green-800 px-8 py-1 rounded-md mr-2 text-white font-semibold"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => {
+                          handleDelete(items.id);
+                        }}
+                        className="bg-brand-red-hover hover:bg-red-800 px-7 py-1 rounded-md text-white font-semibold"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              ))}
+            </table>
+          </div>
+        ) : (
+          <div className="pt-5 flex flex-col items-center pb-20">
+            <img className="w-2/5" src={imgEmpty} alt="empty" />
+            <div className="mt-3 text-white">No data product</div>
+          </div>
+        )}
       </div>
       <Transition.Root show={open} as={Fragment}>
         <Dialog
@@ -138,7 +214,7 @@ const CategoryAdmin = () => {
                     <button
                       type="button"
                       className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-8 py-2 bg-green-600 hover:bg-green-800 text-base font-medium text-white  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                      onClick={() => setOpen(false)}
+                      onClick={deleteData}
                       ref={cancelButtonRef}
                     >
                       Yes

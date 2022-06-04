@@ -77,7 +77,10 @@ exports.updateCategory = async (req, res) => {
 
     res.send({
       status: "success",
-      data: req.body,
+      data: {
+        id: newCategory.id,
+        name: newCategory.name,
+      },
     });
   } catch (error) {
     console.log(error);

@@ -109,35 +109,37 @@ exports.addProduct = async (req, res) => {
 };
 
 exports.updateProduct = async (req, res) => {
-  try {
-    const { id } = req.params;
+  const { id } = req.params;
 
-    const data = {
-      name: req?.body?.name,
-      desc: req?.body.desc,
-      price: req?.body?.price,
-      image: req?.file?.filename,
-      qty: req?.body?.qty,
-      idUser: req?.user?.id,
+  try {
+    const data = req.body;
+
+    let updateProduct = await product.update(
+      {
+        ...data,
+        image: req?.file?.filename,
+        idUser: req.user.id,
+      },
+      { where: { id } }
+    );
+
+    updateProduct = JSON.parse(JSON.stringify(data));
+
+    updateProduct = {
+      ...updateProduct,
+      image: process.env.PATH_FILE + req?.file?.filename,
     };
 
-    await product.update(data, {
-      where: {
-        id,
-      },
-    });
-
-    res.send({
+    res.status(200).send({
       status: "success",
+      message: `update Product at id ${id} success`,
       data: {
-        id,
-        data,
-        image: req?.file?.filename,
+        products: updateProduct,
       },
     });
   } catch (error) {
     console.log(error);
-    res.send({
+    res.status(404).send({
       status: "failed",
       message: "Server Error",
     });

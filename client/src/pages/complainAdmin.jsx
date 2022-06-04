@@ -1,13 +1,14 @@
 import React from "react";
-import NavbarAdmin from "../component/navbar/navbarAdmin";
-import imgContact from "../assets/blank-profile.png";
+// import NavbarAdmin from "../component/navbar/navbarAdmin";
+import NavbarAll from "../component/auth/navbar";
+import imgContact from "../assets/default-user.png";
 import sendIco from "../assets/send.png";
 
 const ComplainAdmin = () => {
   const title = "Complain Admin";
   return (
-    <div className="h-screen bg-black">
-      <NavbarAdmin title={title} />
+    <div className="bg-black">
+      <NavbarAll title={title} />
       <div className="flex w-full items-end ">
         <div className="flex justify-start items-start border-r-2 border-r-brand-grey-light h-vh80 w-full basis-1/3 cursor-pointer">
           <img

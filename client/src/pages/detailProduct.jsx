@@ -1,32 +1,54 @@
 import Product2 from "../assets/product2.png";
-import Navbar from "../component/navbar/navbar";
+import rupiahFormat from "rupiah-format";
+import NavbarAll from "../component/auth/navbar";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+
+import { API } from "../config/api";
 
 const DetailProduct = () => {
+  const title = "Product";
+  document.title = "DumbMerch | " + title;
+  let navigate = useNavigate();
+  let { id } = useParams();
+
+  const [product, setProduct] = useState({});
+
+  // Fetching detail product data by id from database
+  const getProduct = async (id) => {
+    try {
+      const response = await API.get("/product/" + id);
+      // Store product data to useState variabel
+      setProduct(response.data.data.getProduct);
+      console.log(response.data.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getProduct(id);
+  }, []);
+
   return (
-    <div className="bg-black h-screen">
-      <Navbar />
+    <div className="bg-black">
+      <NavbarAll title={title} />
       <div className="flex items-start">
         <div className="basis-2/5 ml-32 py-10">
-          <img className="w-80 rounded-md" src={Product2} alt="product2" />
+          <img
+            className="w-80 rounded-md"
+            src={product?.image}
+            alt="product2"
+          />
         </div>
         <div className="text-white basis-3/5 mr-40">
-          <h1 className="text-brand-red text-3xl font-bold">Mouse</h1>
-          <p className="mt-2 mb-9">Stock : 600</p>
-          <p className="text-justify">
-            - Wireless Mouse <br /> - Konektivitas wireless 2.4 GHz <br /> -
-            Jarak wirelesshingga 10 m <br /> - Plug and Play <br /> - Baterai
-            tahan hingga 12 bulan <br /> <br /> MouseWireless Alytech AL - Y5D,
-            hadir dengan desain 3 tombol mouse yang ringan dan mudah dibawa.
-            Mouse ini menggunakan frekuensi radio 2.4GHz (bekerja hingga jarak
-            10m) dan fitur sensor canggih optik pelacakan dengan penerima USB
-            yang kecil. Mouse ini didukung oleh 1x baterai AA (hingga 12 bulan
-            hidup baterai). mendukung sistem operasi Windows 7,8, 10 keatas, Mac
-            OS X 10.8 atau yang lebih baru dan sistem operasi Chrome OS.
-          </p>
+          <h1 className="text-brand-red text-3xl font-bold">{product?.name}</h1>
+          <p className="mt-2 mb-9">Stock : {product?.qty}</p>
+          <p className="text-justify">{product?.desc}</p>
           <p className="text-right text-brand-red text-2xl font-bold">
-            Rp.300.000
+            {/* {product?.price} */}
+            {rupiahFormat.convert(product?.price)}
           </p>
           <button className="bg-brand-red hover:bg-brand-red-hover w-full py-2 rounded-md mt-5">
             Buy

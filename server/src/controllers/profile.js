@@ -34,47 +34,43 @@ exports.getProfile = async (req, res) => {
 };
 
 exports.updateProfile = async (req, res) => {
+  // const { id } = req.params;
+
   try {
-    const data = {
-      phone: req.body.phone,
-      gender: req.body.gender,
-      address: req.body.address,
-      image: req.file.filename,
-      idUser: req.user.id,
+    const data = req.body;
+
+    let updateProfile = await profile.update(
+      {
+        ...data,
+        image: req?.file?.filename,
+      },
+      { where: { id: req.user.id } }
+    );
+
+    console.log(req.user.id);
+    updateProfile = JSON.parse(JSON.stringify(data));
+
+    updateProfile = {
+      ...updateProfile,
+      image: process.env.PATH_FILE + req?.file?.filename,
     };
 
-    let updateProfile = await profile.update(data);
-
-    let profileData = await profile.findOne({
+    await user.update(req.body, {
       where: {
-        id: updateProfile.id,
-      },
-      include: [
-        {
-          model: user,
-          as: "user",
-          attributes: {
-            exclude: ["createdAt", "updatedAt", "password"],
-          },
-        },
-      ],
-      attributes: {
-        exclude: ["createdAt", "updatedAt", "idUser"],
+        id: req.user.id,
       },
     });
 
-    profileData = JSON.parse(JSON.stringify(profileData));
-
-    res.send({
+    res.status(200).send({
       status: "success",
+      message: `update Product success`,
       data: {
-        ...profileData,
-        image: process.env.PATH_FILE + profileData.image,
+        profile: updateProfile,
       },
     });
   } catch (error) {
     console.log(error);
-    res.status(500).send({
+    res.status(404).send({
       status: "failed",
       message: "Server Error",
     });

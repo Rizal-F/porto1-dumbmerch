@@ -1,54 +1,27 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
 // import NavbarAdmin from "../component/navbar/navbarAdmin";
 import NavbarAll from "../component/auth/navbar";
+import { useNavigate } from "react-router";
 
 import { API } from "../config/api";
 
-const EditProduct = () => {
+const AddProduct = () => {
   const title = "Product Admin";
   document.title = "DumbMerch | " + title;
 
   let navigate = useNavigate();
-  let { id } = useParams();
 
-  const [preview, setPreview] = useState(null);
-  const [product, setProduct] = useState({});
-  const [form, setFrom] = useState({
+  const [preview, setPreview] = useState(null); //For image preview
+  const [form, setForm] = useState({
     image: "",
     name: "",
     desc: "",
     price: "",
     qty: "",
-  });
+  }); //Store product data
 
-  const getProduct = async (id) => {
-    try {
-      const response = await API.get("/product/" + id);
-      // Store product data to useState variabel
-      // return console.log(response);
-      setPreview(response.data.data.getProduct.image);
-      setFrom({
-        ...form,
-        name: response.data.data.getProduct.name,
-        desc: response.data.data.getProduct.desc,
-        price: response.data.data.getProduct.price,
-        qty: response.data.data.getProduct.qty,
-      });
-      // return console.log(response.data.data.getProduct);
-      setProduct(response.data.data.getProduct);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    getProduct(id);
-  }, []);
-
-  //handle change data on form
   const handleChange = (e) => {
-    setFrom({
+    setForm({
       ...form,
       [e.target.name]:
         e.target.type === "file" ? e.target.files : e.target.value,
@@ -61,7 +34,6 @@ const EditProduct = () => {
     }
   };
 
-  //handle onsubmit for update data when submit
   const handleSubmit = async (e) => {
     try {
       e.preventDefault();
@@ -72,37 +44,31 @@ const EditProduct = () => {
           "Content-type": "multipart/form-data",
         },
       };
-
       // Store data with FormData as object
       const formData = new FormData();
-      if (form.image) {
-        formData.set("image", form?.image[0], form?.image[0]?.name);
-      }
+      formData.set("image", form.image[0], form.image[0].name);
       formData.set("name", form.name);
       formData.set("desc", form.desc);
       formData.set("price", form.price);
       formData.set("qty", form.qty);
+      // formData.set("categoryId", categoryId);
 
       // Insert product data
-      const response = await API.patch(
-        "/product/" + product.id,
-        formData,
-        config
-      );
-      console.log(response.data);
+      const response = await API.post("/product", formData, config);
+      // console.log(response);
+      console.log(formData);
 
       navigate("/product");
     } catch (error) {
       console.log(error);
     }
   };
-
   return (
     <div className="bg-black">
       <NavbarAll title={title} />
       <div>
         <h1 className="text-white text-2xl font-bold ml-32 mb-10 ">
-          Edit Product
+          Add Product
         </h1>
         <div className="flex justify-center">
           <div className=" flex-col w-4/5">
@@ -145,14 +111,12 @@ const EditProduct = () => {
                 type="text"
                 placeholder="Product Name"
                 name="name"
-                value={form?.name}
                 onChange={handleChange}
                 class="text-white bg-brand-grey-light w-full my-2 px-3 py-2 border-2 rounded-md focus:outline-none placeholder-gray-500 focus:border-zinc-400 focus:z-10"
               />
               <textarea
                 placeholder="Product Desc"
                 name="desc"
-                value={form?.desc}
                 onChange={handleChange}
                 cols="144"
                 rows="5"
@@ -162,7 +126,6 @@ const EditProduct = () => {
                 type="number"
                 placeholder="Price (Rp.)"
                 name="price"
-                value={form?.price}
                 onChange={handleChange}
                 class="text-white bg-brand-grey-light w-full my-2 px-3 py-2 border-2 rounded-md focus:outline-none placeholder-gray-500 focus:border-zinc-400 focus:z-10"
               />
@@ -170,7 +133,6 @@ const EditProduct = () => {
                 type="number"
                 placeholder="Stock"
                 name="qty"
-                value={form?.qty}
                 onChange={handleChange}
                 class="text-white bg-brand-grey-light w-full my-2 px-3 py-2 border-2 rounded-md focus:outline-none placeholder-gray-500 focus:border-zinc-400 focus:z-10"
               />
@@ -186,4 +148,4 @@ const EditProduct = () => {
   );
 };
 
-export default EditProduct;
+export default AddProduct;

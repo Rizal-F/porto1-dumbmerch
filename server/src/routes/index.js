@@ -62,11 +62,11 @@ router.get("/check-auth", auth, checkAuth);
 
 //end point profile
 router.get("/profile", auth, getProfile);
-router.post("/profile", auth, uploadFile("image"), updateProfile);
+router.patch("/profile", auth, uploadFile("image"), updateProfile);
 
 //end point product
-router.get("/products", auth, getProducts);
-router.get("/product/:id", auth, getProduct);
+router.get("/products", getProducts);
+router.get("/product/:id", getProduct);
 router.post("/product", auth, uploadFile("image"), addProduct);
 router.patch("/product/:id", auth, uploadFile("image"), updateProduct);
 router.delete("/product/:id", auth, deleteProduct);

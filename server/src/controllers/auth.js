@@ -28,6 +28,22 @@ exports.register = async (req, res) => {
     });
 
   try {
+    const userExist = await user.findOne({
+      where: {
+        email: req.body.email,
+      },
+      attributes: {
+        exclude: ["createdAt", "updatedAt"],
+      },
+    });
+
+    if (userExist) {
+      return res.status(400).send({
+        status: "Failed",
+        message: "Email already registered",
+      });
+    }
+
     // we generate salt (random value) with 10 rounds || men-generate enkripsi password 10x hashing password
     const salt = await bcrypt.genSalt(10);
     // we hash password from request with salt
