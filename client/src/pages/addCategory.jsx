@@ -23,6 +23,7 @@ const AddCategory = () => {
       // Configuration
       const config = {
         headers: {
+          Authorization: "Basic " + localStorage.token,
           "Content-type": "application/json",
         },
       };

@@ -3,6 +3,15 @@ const { product, user, category, productCategory } = require("../../models");
 exports.getProducts = async (req, res) => {
   try {
     let listProduct = await product.findAll({
+      include: [
+        {
+          model: user,
+          as: "user",
+          attributes: {
+            exclude: ["createdAt", "updatedAt", "password"],
+          },
+        },
+      ],
       attributes: {
         exclude: ["createdAt", "updatedAt", "idUser"],
       },
@@ -34,6 +43,15 @@ exports.getProduct = async (req, res) => {
       where: {
         id,
       },
+      include: [
+        {
+          model: user,
+          as: "user",
+          attributes: {
+            exclude: ["createdAt", "updatedAt", "password"],
+          },
+        },
+      ],
       attributes: {
         exclude: ["createdAt", "updatedAt", "idUser"],
       },

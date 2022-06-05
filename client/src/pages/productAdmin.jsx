@@ -64,7 +64,13 @@ const ProductAdmin = () => {
   // If confirm is true, execute delete data
   const deleteById = async (id) => {
     try {
-      await API.delete(`/product/${id}`);
+      const config = {
+        headers: {
+          Authorization: "Basic " + localStorage.token,
+        },
+      };
+
+      await API.delete(`/product/${id}`, config);
       getProducts();
     } catch (error) {
       console.log(error);

@@ -36,6 +36,7 @@ const EditCategory = () => {
 
       const config = {
         headers: {
+          Authorization: "Basic " + localStorage.token,
           "Content-type": "application/json",
         },
       };

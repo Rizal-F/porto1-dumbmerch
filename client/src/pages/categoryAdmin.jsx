@@ -51,7 +51,13 @@ const CategoryAdmin = () => {
 
   const deleteById = async (id) => {
     try {
-      await API.delete(`/category/${id}`);
+      const config = {
+        headers: {
+          Authorization: "Basic " + localStorage.token,
+        },
+      };
+
+      await API.delete(`/category/${id}`, config);
       getCategories();
     } catch (error) {
       console.log(error);

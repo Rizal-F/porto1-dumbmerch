@@ -65,6 +65,7 @@ const EditProfile = () => {
       e.preventDefault();
       const config = {
         headers: {
+          Authorization: "Basic " + localStorage.token,
           "Content-type": "multipart/form-data",
         },
       };
