@@ -11,6 +11,19 @@ const cors = require("cors");
 app.use(express.json());
 app.use(cors());
 
+//socket package
+const http = require("http");
+const { Server } = require("socket.io");
+
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000", // define client origin if both client and server have different origin
+  },
+});
+
+require("./src/socket")(io);
+
 // deklarasi port
 const port = 5000;
 
@@ -24,4 +37,4 @@ app.use("/api/v1/", router);
 app.use("/uploads", express.static("uploads"));
 
 // listen port
-app.listen(port, () => console.log(`Listening on port : ${port} `));
+server.listen(port, () => console.log(`Listening on port ${port}!`));

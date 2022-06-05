@@ -30,6 +30,7 @@ const Profile = () => {
       const response = await API.get("/user/" + state.user.id);
       // Store product data to useState variabel
       setProfile(response.data.data.users);
+      console.log(response.data.data.users);
 
       setTimeout(() => {
         setIsLoading(false);
@@ -56,12 +57,25 @@ const Profile = () => {
             <div className="flex flex-col items-center">
               {!isLoading ? (
                 <>
-                  <img
-                    className="w-64 rounded-md mb-2"
-                    src={profile?.image ? profile.image : BlankProfile}
-                    // src={BlankProfile}
-                    alt="profile"
-                  />
+                  {profile.image !== null ? (
+                    <>
+                      <img
+                        className="w-64 rounded-md mb-2"
+                        src={profile.image}
+                        // src={BlankProfile}
+                        alt="profile"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <img
+                        src={BlankProfile}
+                        alt="img"
+                        className="w-64 rounded-md mb-2"
+                        // style={{ width: "49px" }}
+                      />
+                    </>
+                  )}
                 </>
               ) : (
                 <>
