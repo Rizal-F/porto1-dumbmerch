@@ -1,7 +1,9 @@
 import NavbarAll from "../component/auth/navbar";
 import BlankProfile from "../assets/default-user.png";
-import Product2 from "../assets/product2.png";
+// import Product2 from "../assets/product2.png";
 import logoDw from "../assets/DumbMerch.png";
+import dateFormat from "dateformat";
+import rupiahFormat from "rupiah-format";
 
 import { Link } from "react-router-dom";
 
@@ -21,6 +23,7 @@ const Profile = () => {
   console.log(state.user.id);
 
   const [profile, setProfile] = useState({});
+  const [transactions, setTransactions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   //fetch data
@@ -42,8 +45,20 @@ const Profile = () => {
     }
   };
 
+  const getTransactions = async () => {
+    try {
+      const response = await API.get("/transactions");
+      // Store transaction data to useState variabel
+      setTransactions(response.data.data);
+      console.log(response.data.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     getProfile();
+    getTransactions();
   }, []);
   return (
     <div className="bg-black">
@@ -139,24 +154,47 @@ const Profile = () => {
           <h1 className="text-brand-red font-bold text-2xl mb-10">
             My Transaction
           </h1>
-          <div className="bg-brand-dark-grey rounded-xl flex items-center space-x-5 mr-20 p-5">
-            <div>
-              <img className="w-32 rounded-sm" src={Product2} alt="product2" />
-            </div>
-            <div className="">
-              <h1 className="text-brand-red font-bold text-lg">Mouse</h1>
-              <p className="text-brand-red text-sm">
-                <b>Sunday</b>, 14 July 2022
-              </p>
-              <p className="text-white text-sm mt-2">Price : Rp.500.000</p>
-              <p className="text-white text-sm font-bold mt-10">
-                Sub Total : Rp.500.000
-              </p>
-            </div>
-            <div>
-              <img className="w-20 ml-5" src={logoDw} alt="logodw" />
-            </div>
-          </div>
+          {transactions.length !== 0 ? (
+            <>
+              <div className="space-y-3">
+                {transactions?.map((item, index) => (
+                  <div
+                    key={index}
+                    className="bg-brand-dark-grey rounded-xl flex items-center space-x-5 mr-20 p-5"
+                  >
+                    <div className="basis-1/4">
+                      <img
+                        className="w-24 rounded-sm"
+                        src={item.product.image}
+                        alt="product"
+                      />
+                    </div>
+                    <div className="basis-2/4">
+                      <h1 className="text-brand-red font-bold text-md">
+                        {item.product.name}
+                      </h1>
+                      <p className="text-brand-red text-xs">
+                        {dateFormat(item.createdAt, "dddd, d mmmm yyyy")}
+                      </p>
+                      <p className="text-brand-red text-xs mt-2">
+                        {dateFormat(item.createdAt, "HH:MM")} WIB
+                      </p>
+                      <p className="text-white text-md font-bold mt-5">
+                        Price : {rupiahFormat.convert(item.price)}
+                      </p>
+                    </div>
+                    <div
+                      className={`status-transaction-${item.status} rounded-md p-5 font-bold text-center text-white basis-1/4`}
+                    >
+                      {item.status}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="no-data-transaction">No transaction</div>
+          )}
         </div>
       </div>
     </div>

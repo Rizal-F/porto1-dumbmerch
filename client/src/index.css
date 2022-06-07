@@ -137,3 +137,18 @@ html {
 ::-webkit-scrollbar-thumb:hover {
     background: #575757;
 }
+
+.status-transaction-success {
+    background-color: #5FD068 !important;
+    text-transform: capitalize;
+}
+
+.status-transaction-pending {
+    background-color: #F9D923 !important;
+    text-transform: capitalize;
+}
+
+.status-transaction-failed {
+    background-color: #F32424 !important;
+    text-transform: capitalize;
+}

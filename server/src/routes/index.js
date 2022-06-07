@@ -29,6 +29,7 @@ const {
 const {
   getTransactions,
   addTransaction,
+  notification,
 } = require("../controllers/transaction");
 
 // Import controller categories
@@ -74,6 +75,9 @@ router.delete("/product/:id", auth, deleteProduct);
 //end point transaction
 router.get("/transactions", auth, getTransactions);
 router.post("/transaction", auth, addTransaction);
+
+//end point notification
+router.post("/notification", notification);
 
 //end point categories
 router.get("/categories", auth, getCategories);
